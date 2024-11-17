@@ -30,10 +30,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
+      - name: Install dependencies using npm ci
         run: |
           cd starter/frontend
-          npm install
+          npm ci
 
       - name: Run ESLint
         run: |
@@ -59,10 +59,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
+      - name: Install dependencies using npm ci
         run: |
           cd starter/frontend
-          npm install
+          npm ci
 
       - name: Run tests
         run: |
@@ -89,10 +89,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
+      - name: Install dependencies using npm ci
         run: |
           cd starter/frontend
-          npm install
+          npm ci
 
       - name: Build Docker image
         run: |

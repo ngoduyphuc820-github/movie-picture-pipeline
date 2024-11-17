@@ -1,0 +1,79 @@
+name: Backend Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "starter/backend/**" # Only trigger if files in the 'frontend' directory change
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          cd starter/backend
+          pipenv install
+
+      - name: Run ESLint
+        run: |
+          cd starter/backend
+          pipenv run lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          cd starter/backend
+          pipenv install
+
+      - name: Run tests
+        run: |
+          cd starter/backend
+          pipenv run test
+
+  build:
+    needs: [lint, test] # Run build only if lint and test jobs succeed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          cd starter/backend
+          pipenv install
+
+      - name: Build Docker image
+        run: |
+          cd starter/backend
+          docker build -t frontend-image .
+
+      - name: Run application
+        run: |
+          cd starter/backend
+          pipenv run serve
