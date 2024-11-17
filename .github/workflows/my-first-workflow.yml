@@ -1,0 +1,35 @@
+name: My First Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "frontend/**" # Only trigger if files in the 'frontend' directory change
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run tests (optional)
+        run: |
+          cd frontend
+          npm test
+
+      - name: Print a message
+        run: echo "Hello, world!"
