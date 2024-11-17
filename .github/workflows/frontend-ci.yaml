@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "stater/frontend/**" # Only trigger if files in the 'frontend' directory change
+      - "starter/frontend/**" # Only trigger if files in the 'frontend' directory change
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -23,12 +23,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd stater/frontend
+          cd starter/frontend
           npm install
 
       - name: Run tests (optional)
         run: |
-          cd stater/frontend
+          cd starter/frontend
           npm test
 
       - name: Print a message
