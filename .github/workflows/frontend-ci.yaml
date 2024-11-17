@@ -1,3 +1,5 @@
+# .github/workflows/frontend-ci.yaml
+
 name: Frontend Continuous Integration
 
 on:
@@ -9,9 +11,8 @@ on:
   workflow_dispatch: # Allow manual trigger
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -21,15 +22,79 @@ jobs:
         with:
           node-version: 18
 
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
         run: |
           cd starter/frontend
           npm install
 
-      - name: Run tests (optional)
+      - name: Run ESLint
         run: |
           cd starter/frontend
-          npm test
+          npm run lint
 
-      - name: Print a message
-        run: echo "Hello, world!"
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          cd starter/frontend
+          npm install
+
+      - name: Run tests
+        run: |
+          cd starter/frontend
+          npm run test
+
+  build:
+    needs: [lint, test] # Run build only if lint and test jobs succeed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          cd starter/frontend
+          npm install
+
+      - name: Build Docker image
+        run: |
+          cd starter/frontend
+          docker build -t frontend-image .
