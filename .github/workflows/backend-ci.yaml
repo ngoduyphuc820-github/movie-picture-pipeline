@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd starter/backend
-          pipenv install
+          pipenv install --dev
 
       - name: Run ESLint
         run: |
@@ -54,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd starter/backend
-          pipenv install
+          pipenv install --dev
 
       - name: Run tests
         run: |
@@ -81,7 +81,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd starter/backend
-          pipenv install
+          pipenv install --dev
 
       - name: Build Docker image
         run: |
