@@ -1,10 +1,10 @@
-name: Frontend Continuous Deployment
+name: Backend Continuous Deployment
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch: # Manual trigger for the workflow
 
 jobs:
   lint:
@@ -16,12 +16,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          cd starter/frontend
+          cd starter/backend
           npm ci
 
       - name: Run Lint
         run: |
-          cd starter/frontend
+          cd starter/backend
           npm run lint
 
   test:
@@ -34,12 +34,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          cd starter/frontend
+          cd starter/backend
           npm ci
 
       - name: Run Tests
         run: |
-          cd starter/frontend
+          cd starter/backend
           npm test -- --ci --watchAll=false
 
   build:
@@ -59,23 +59,35 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build \
-          --build-arg REACT_APP_MOVIE_API_URL=${{ secrets.REACT_APP_MOVIE_API_URL }} \
-          --tag mp-frontend:latest \
-          ./stater/frontend
+          docker build --tag mp-backend:latest .
 
-      - name: Run Docker Container
+      - name: Run Docker Container Locally
         run: |
-          docker run --name mp-frontend -p 3000:3000 -d mp-frontend:latest
+          docker run -p 5000:5000 --name mp-backend -d mp-backend
 
-      - name: Push Docker Image to ECR
+      - name: Check Application Endpoint
         run: |
-          docker tag mp-frontend:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:latest
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:latest
+          curl http://localhost:5000/movies
+
+      - name: Review Docker Logs
+        run: |
+          docker logs -f mp-backend
+
+      - name: Tag Docker Image for ECR
+        run: |
+          docker tag mp-backend:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_BE:latest
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          ECR_REPOSITORY_NAME_FE: ${{ secrets.ECR_REPOSITORY_NAME_FE }}
+          ECR_REPOSITORY_NAME_BE: ${{ secrets.ECR_REPOSITORY_NAME_BE }}
+
+      - name: Push Docker Image to ECR
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_BE:latest
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ECR_REPOSITORY_NAME_BE: ${{ secrets.ECR_REPOSITORY_NAME_BE }}
 
   deploy:
     name: Deploy to EKS
@@ -99,18 +111,9 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
 
-      - name: Install Kustomize
+      - name: Deploy to EKS using kubectl
         run: |
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          sudo mv kustomize /usr/local/bin/
-          kustomize version
-
-      - name: Set Image Tag in Kustomize
-        run: |
-          cd starter/frontend/k8s
-          kustomize edit set image frontend=${{ secrets.ECR_REPO_URL }}:${{ github.sha }}
-
-      - name: Deploy with Kustomize
-        run: |
-          cd starter/frontend/k8s
-          kustomize build | kubectl apply -f -
+          kubectl set image deployment/backend-app backend-app=${{ secrets.ECR_REPO_URL }}:${{ github.sha }}
+          kubectl rollout status deployment/backend-app
+        env:
+          ECR_REPO_URL: ${{ secrets.ECR_REPO_URL }}
