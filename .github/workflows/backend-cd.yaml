@@ -17,12 +17,12 @@ jobs:
       - name: Install Dependencies
         run: |
           cd starter/backend
-          npm ci
+          pipenv install
 
       - name: Run Lint
         run: |
           cd starter/backend
-          npm run lint
+          pipenv run lint
 
   test:
     name: Testing
@@ -35,12 +35,12 @@ jobs:
       - name: Install Dependencies
         run: |
           cd starter/backend
-          npm ci
+          pipenv install
 
       - name: Run Tests
         run: |
           cd starter/backend
-          npm test -- --ci --watchAll=false
+          pipenv run test
 
   build:
     name: Build Docker Image
