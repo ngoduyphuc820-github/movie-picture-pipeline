@@ -86,7 +86,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd starter/backend
-          docker build -t frontend-image .
+          docker build -t backend-image .
 
       - name: Run application
         run: |
