@@ -114,7 +114,3 @@ jobs:
         run: |
           cd starter/frontend/k8s
           kustomize build | kubectl apply -f -
-
-      - name: Wait for Deployment Rollout
-        run: |
-          kubectl rollout status deployment/frontend
