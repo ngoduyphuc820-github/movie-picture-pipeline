@@ -105,8 +105,9 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_REPOSITORY_NAME_BE: ${{ secrets.ECR_REPOSITORY_NAME_BE }}
 
-      - name: Stop the application
-        run: docker stop
+      - name: Stop Docker Container
+        run: |
+          docker stop mp-backend  # Stop the container named mp-backend
 
   deploy:
     name: Deploy to EKS
