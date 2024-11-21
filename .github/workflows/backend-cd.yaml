@@ -89,10 +89,6 @@ jobs:
         run: |
           curl http://localhost:5000/movies
 
-      - name: Review Docker Logs
-        run: |
-          docker logs -f mp-backend
-
       - name: Tag Docker Image for ECR
         run: |
           docker tag mp-backend:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_BE:latest
