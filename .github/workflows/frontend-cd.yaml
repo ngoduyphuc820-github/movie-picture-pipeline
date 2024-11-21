@@ -63,6 +63,13 @@ jobs:
           --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:latest \
           ./starter/frontend
+
+      - name: Check Environment Variables
+        run: |
+          echo "AWS_ACCOUNT_ID: $AWS_ACCOUNT_ID"
+          echo "AWS_REGION: $AWS_REGION"
+          echo "ECR_REPOSITORY_NAME_FE: $ECR_REPOSITORY_NAME_FE"
+
         env:
           REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
