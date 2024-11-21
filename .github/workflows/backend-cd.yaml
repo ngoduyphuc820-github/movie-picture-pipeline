@@ -79,9 +79,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build --tag mp-backend:latest \
-          ./starter/backend
-           docker build \
+          docker build --tag mp-backend:latest ./starter/backend
 
       - name: Run Docker Container Locally
         run: |
