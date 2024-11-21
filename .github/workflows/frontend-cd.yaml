@@ -57,19 +57,12 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Check Environment Variables
-        run: |
-          echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
-          echo "AWS_REGION: ${{ secrets.AWS_REGION }}"
-          echo "ECR_REPOSITORY_NAME_FE: ${{ secrets.ECR_REPOSITORY_NAME_FE }}"
-
       - name: Build Docker Image
         run: |
           docker build \
           --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:latest \
           ./starter/frontend
-
         env:
           REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
@@ -110,6 +103,7 @@ jobs:
         run: |
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
           sudo mv kustomize /usr/local/bin/
+          kustomize version
 
       - name: Set Image Tag in Kustomize
         run: |
@@ -119,7 +113,7 @@ jobs:
       - name: Deploy with Kustomize
         run: |
           cd starter/frontend/k8s
-          kustomize build | kubectl apply -f
+          kustomize build ./starter/frontend/k8s | kubectl apply -f -
 
       - name: Wait for Deployment Rollout
         run: |
