@@ -63,4 +63,39 @@ jobs:
           REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          ECR_REPOSITORY_NAME_FE: ${{ secrets.ECR_REPOSITORY_NAME
+          ECR_REPOSITORY_NAME_FE: ${{ secrets.ECR_REPOSITORY_NAME_FE }}
+
+      - name: Push Docker Image to ECR
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:latest
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ECR_REPOSITORY_NAME_FE: ${{ secrets.ECR_REPOSITORY_NAME_FE }}
+
+  deploy:
+    name: Deploy to EKS
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up kubectl
+        run: |
+          aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f deployment/
+          kubectl rollout status deployment/frontend-deployment
