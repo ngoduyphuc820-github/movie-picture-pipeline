@@ -108,7 +108,7 @@ jobs:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_REPOSITORY_NAME_BE: ${{ secrets.ECR_REPOSITORY_NAME_BE }}
-          
+
       - name: Stop the application
         run: docker stop
 
@@ -134,9 +134,18 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
 
-      - name: Deploy to EKS using kubectl
+      - name: Install Kustomize
         run: |
-          kubectl set image deployment/backend-app backend-app=${{ secrets.ECR_REPO_URL }}:${{ github.sha }}
-          kubectl rollout status deployment/backend-app
-        env:
-          ECR_REPO_URL: ${{ secrets.ECR_REPO_URL }}
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+          kustomize version
+
+      - name: Set Image Tag in Kustomize
+        run: |
+          cd starter/frontend/k8s
+          kustomize edit set image frontend=${{ secrets.ECR_REPO_URL }}:${{ github.sha }}
+
+      - name: Deploy with Kustomize
+        run: |
+          cd starter/frontend/k8s
+          kustomize build | kubectl apply -f -
