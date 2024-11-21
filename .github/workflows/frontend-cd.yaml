@@ -113,7 +113,7 @@ jobs:
       - name: Deploy with Kustomize
         run: |
           cd starter/frontend/k8s
-          kustomize build ./starter/frontend/k8s | kubectl apply -f -
+          kustomize build | kubectl apply -f -
 
       - name: Wait for Deployment Rollout
         run: |
