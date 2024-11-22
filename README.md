@@ -474,4 +474,4 @@ kustomize build | kubectl apply -f -
 #### Run and Test the Application
 - Github Link repo: https://github.com/ngoduyphuc820-github/movie-picture-pipeline
 - Frontend URL: http://ac3d204f54a9f4910aa668afd8f076f3-439724865.us-east-1.elb.amazonaws.com
-- Backend URL curl http://a8286a5bd0ab1455a9389abb1f8637a7-1680274508.us-east-1.elb.amazonaws.com/movies
+- Backend URL: http://a8286a5bd0ab1455a9389abb1f8637a7-1680274508.us-east-1.elb.amazonaws.com/movies
