@@ -108,7 +108,7 @@ jobs:
       - name: Set Image Tag in Kustomize
         run: |
           cd starter/frontend/k8s
-          kustomize edit set image frontend=${{ secrets.ECR_REPO_URL }}:${{ github.sha }}
+          kustomize edit set image frontend=${{ secrets.ECR_REPO_URL }}:latest
 
       - name: Deploy with Kustomize
         run: |
