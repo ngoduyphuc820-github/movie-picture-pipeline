@@ -59,19 +59,17 @@ jobs:
 
       - name: Build Docker Image
         run: |
+          GIT_SHA=$(git rev-parse --short HEAD)
           docker build \
           --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL \
-          --tag mp-frontend:latest \
+          --tag mp-frontend:$GIT_SHA \
           ./starter/frontend
-
-      - name: Run Docker Container
-        run: |
-          docker run --name mp-frontend -p 3000:3000 -d mp-frontend:latest
 
       - name: Push Docker Image to ECR
         run: |
-          docker tag mp-frontend:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:latest
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:latest
+          GIT_SHA=$(git rev-parse --short HEAD)
+          docker tag mp-frontend:$GIT_SHA $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:$GIT_SHA
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:$GIT_SHA
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -107,8 +105,9 @@ jobs:
 
       - name: Set Image Tag in Kustomize
         run: |
+          GIT_SHA=$(git rev-parse --short HEAD)
           cd starter/frontend/k8s
-          kustomize edit set image frontend=${{ secrets.ECR_REPO_URL }}:latest
+          kustomize edit set image frontend=${{ secrets.ECR_REPO_URL }}:$GIT_SHA
 
       - name: Deploy with Kustomize
         run: |
