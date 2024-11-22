@@ -116,7 +116,6 @@ jobs:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_REPOSITORY_NAME_FE: ${{ secrets.ECR_REPOSITORY_NAME_FE }}
-          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
           GIT_SHA: ${{ github.sha }}
 
       - name: Deploy with Kustomize
