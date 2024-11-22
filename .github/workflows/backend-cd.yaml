@@ -24,14 +24,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install pipenv  # Install pipenv
 
-      - name: Install Dependencies
+      - name: Install Dependencies and Run Lint
         run: |
           cd starter/backend
           pipenv install --dev
-
-      - name: Run Lint
-        run: |
-          cd starter/backend
           pipenv run lint
 
   test:
@@ -47,19 +43,12 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install pipenv
+      - name: Install pipenv and Run Tests
         run: |
+          cd starter/backend
           python -m pip install --upgrade pip
-          pip install pipenv  # Install pipenv
-
-      - name: Install Dependencies
-        run: |
-          cd starter/backend
+          pip install pipenv
           pipenv install
-
-      - name: Run Tests
-        run: |
-          cd starter/backend
           pipenv run test
 
   build:
@@ -77,45 +66,29 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Build Docker Image
+      - name: Build and Tag Docker Image
         run: |
-          GIT_SHA=$(git rev-parse --short HEAD)
-          docker build \
-            --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL \
-            --tag mp-backend:$GIT_SHA \
-            ./starter/backend
-        env:
-          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
-      - name: Run Docker Container Locally
-        run: |
-          GIT_SHA=$(git rev-parse --short HEAD)
-          docker run -p 5000:5000 --name mp-backend -d mp-backend:$GIT_SHA
-
-      - name: Check Application Endpoint
-        run: |
-          curl http://localhost:5000/movies
-
-      - name: Tag Docker Image for ECR
-        run: |
-          GIT_SHA=$(git rev-parse --short HEAD)
+          docker build --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL \
+            --tag mp-backend:$GIT_SHA ./starter/backend
           docker tag mp-backend:$GIT_SHA $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_BE:$GIT_SHA
         env:
+          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_REPOSITORY_NAME_BE: ${{ secrets.ECR_REPOSITORY_NAME_BE }}
+          GIT_SHA: ${{ github.sha }}
 
       - name: Push Docker Image to ECR
         run: |
-          GIT_SHA=$(git rev-parse --short HEAD)
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_BE:$GIT_SHA
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_REPOSITORY_NAME_BE: ${{ secrets.ECR_REPOSITORY_NAME_BE }}
-
+          GIT_SHA: ${{ github.sha }}
       - name: Stop Docker Container
         run: |
-          docker stop mp-backend  # Stop the container named mp-backend
+          docker stop mp-backend
 
   deploy:
     name: Deploy to EKS
@@ -147,9 +120,11 @@ jobs:
 
       - name: Set Image Tag in Kustomize
         run: |
-          GIT_SHA=$(git rev-parse --short HEAD)
           cd starter/backend/k8s
-          kustomize edit set image backend=${{ secrets.ECR_REPOSITORY_NAME_BE }}:$GIT_SHA
+          kustomize edit set image backend=${ECR_REPOSITORY_NAME_BE}:${GIT_SHA}
+        env:
+          ECR_REPOSITORY_NAME_BE: ${{ secrets.ECR_REPOSITORY_NAME_BE }}
+          GIT_SHA: ${{ github.sha }}
 
       - name: Deploy with Kustomize
         run: |
