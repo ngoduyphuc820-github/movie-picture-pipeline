@@ -111,9 +111,12 @@ jobs:
         run: |
           GIT_SHA=$(git rev-parse --short HEAD)
           cd starter/frontend/k8s
-          kustomize edit set image frontend=${{ secrets.ECR_REPOSITORY_NAME_FE }}:$GIT_SHA
+          kustomize edit set image frontend=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_NAME_FE:$GIT_SHA
         env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_REPOSITORY_NAME_FE: ${{ secrets.ECR_REPOSITORY_NAME_FE }}
+          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
           GIT_SHA: ${{ github.sha }}
 
       - name: Deploy with Kustomize
