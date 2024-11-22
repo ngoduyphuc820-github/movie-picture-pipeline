@@ -110,7 +110,7 @@ jobs:
         run: |
           GIT_SHA=$(git rev-parse --short HEAD)
           cd starter/frontend/k8s
-          kustomize edit set image frontend=${{ secrets.ECR_REPO_URL }}:$GIT_SHA
+          kustomize edit set image frontend=${{ secrets.ECR_REPOSITORY_NAME_FE }}:$GIT_SHA
 
       - name: Deploy with Kustomize
         run: |
