@@ -86,9 +86,6 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_REPOSITORY_NAME_BE: ${{ secrets.ECR_REPOSITORY_NAME_BE }}
           GIT_SHA: ${{ github.sha }}
-      - name: Stop Docker Container
-        run: |
-          docker stop mp-backend
 
   deploy:
     name: Deploy to EKS
