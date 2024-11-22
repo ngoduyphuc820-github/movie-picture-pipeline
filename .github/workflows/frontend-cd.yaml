@@ -61,9 +61,11 @@ jobs:
         run: |
           GIT_SHA=$(git rev-parse --short HEAD)
           docker build \
-          --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL \
-          --tag mp-frontend:$GIT_SHA \
-          ./starter/frontend
+            --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL \
+            --tag mp-frontend:$GIT_SHA \
+            ./starter/frontend
+        env:
+          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
 
       - name: Push Docker Image to ECR
         run: |
@@ -74,6 +76,7 @@ jobs:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_REPOSITORY_NAME_FE: ${{ secrets.ECR_REPOSITORY_NAME_FE }}
+          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
 
   deploy:
     name: Deploy to EKS
