@@ -471,7 +471,7 @@ kustomize build | kubectl apply -f -
 [License](LICENSE.md)
 
 
-#### Run and Test the Application
+### Run and Test the Application
 - Github Link repo: https://github.com/ngoduyphuc820-github/movie-picture-pipeline
-- Backend URL: http://a8286a5bd0ab1455a9389abb1f8637a7-1680274508.us-east-1.elb.amazonaws.com/movies
-- Frontend URL: http://ac3d204f54a9f4910aa668afd8f076f3-439724865.us-east-1.elb.amazonaws.com
+- Backend URL: http://aa5c7b3b13dfd42f1956ca4eec62880d-1302143545.us-east-1.elb.amazonaws.com/movies
+- Frontend URL: http://aeb2797e5154b4efcbe7612ef05f6e69-618278984.us-east-1.elb.amazonaws.com
