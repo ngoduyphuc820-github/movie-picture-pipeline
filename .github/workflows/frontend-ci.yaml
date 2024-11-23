@@ -1,5 +1,3 @@
-# .github/workflows/frontend-ci.yaml
-
 name: Frontend Continuous Integration
 
 on:
@@ -7,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - "starter/frontend/**" # Only trigger if files in the 'frontend' directory change
-  workflow_dispatch: # Allow manual trigger
+      - "starter/frontend/**"
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -70,7 +68,7 @@ jobs:
           npm run test
 
   build:
-    needs: [lint, test] # Run build only if lint and test jobs succeed
+    needs: [lint, test] 
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
